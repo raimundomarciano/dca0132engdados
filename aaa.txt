@@ -1,0 +1,72 @@
+### PROTOCOLO
+
+#É importante iniciar o mongodb
+
+```
+docker exec -it mongodb mongosh
+rs.initiate()
+```
+
+
+# pega o IP do container debezium
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' debezium
+
+# registra o conector
+$headers = @{"Content-Type"="application/json"}
+Invoke-WebRequest -Uri "http://localhost:8083/connectors" -Method Post -Headers $headers -Body (Get-Content -Raw -Path "debezium-mongodb-connector.json")
+Invoke-WebRequest -Uri "http://localhost:8083/connectors/mongodb-connector" -Method Delete -Headers $headers
+
+
+
+docker cp sparkekafka.py spark-master:/opt/bitnami/spark/work/
+docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 /opt/bitnami/spark/work/sparkekafka.py
+
+
+docker exec -it kafka kafka-topics --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic test-topic
+docker exec -it kafka kafka-console-producer --broker-list kafka:9092 --topic test-topic
+
+
+
+
+docker start mongodb
+docker exec -it mongodb mongosh
+
+
+
+
+
+
+
+spark
+localhost:8080
+
+debezium
+http://localhost:8083/connectors
+
+
+docker-compose up --build
+docker-compose down -v
+docker exec -it mongodb mongosh
+
+python3 -m venv mongo
+source mongo/bin/activate
+python3 -m pip install pyspark
+
+
+#########
+
+docker run -p 27017:27017 --name nosql-mongo -v mongo-data:/data/ -d mongo
+
+https://dadosabertos.bndes.gov.br/ne/dataset/bacen/resource/caeb45c9-830c-455c-a1ef-becc535f934a
+
+docker exec -it nosql-mongo /bin/bash
+mongoimport --db bndes --collection contas --drop --file /var/tmp/lr-2021-3.json
+docker exec -it nosql-mongo mongosh
+use bndes
+db.contas.countDocuments();
+db.contas.find();
+
+curl -o /tmp/mongo-kafka-source-connector.jar https://search.maven.org/remotecontent?filepath=org/mongodb/kafka/mongo-kafka-source/1.9.2/mongo-kafka-source-1.9.2.jar
+
+
+

@@ -1,0 +1,8 @@
+FROM bitnami/spark:latest
+
+# Instale o pymongo
+USER root
+RUN apt-get update && apt-get install -y python3-pip && pip3 install pymongo && pip3 install pandas && pip3 install numpy && pip3 install scikit-learn
+
+# Retorne para o usuário padrão
+USER 1001
