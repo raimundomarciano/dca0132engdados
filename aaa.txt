@@ -19,6 +19,9 @@ Invoke-WebRequest -Uri "http://localhost:8083/connectors/mongodb-connector" -Met
 
 
 docker cp sparkekafka.py spark-master:/opt/bitnami/spark/work/
+docker cp depends/svm_credit.pkl spark-master:/opt/bitnami/spark/work/
+docker cp depends/scaler.pkl spark-master:/opt/bitnami/spark/work/
+docker cp depends/credito_teste.csv spark-master:/opt/bitnami/spark/work/
 docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 /opt/bitnami/spark/work/sparkekafka.py
 
 
@@ -31,7 +34,10 @@ docker exec -it kafka kafka-console-producer --broker-list kafka:9092 --topic te
 docker start mongodb
 docker exec -it mongodb mongosh
 
-
+docker exec -it spark-master /bin/bash
+docker stop spark-master
+docker rm spark-master
+docker-compose up --build spark-master
 
 
 

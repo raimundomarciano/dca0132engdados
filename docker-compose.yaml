@@ -52,6 +52,9 @@ services:
       - "8080:8080"
     networks:
       - app_network
+    depends_on:
+      - kafka
+      - mongodb
 
   spark-worker:
     image: bitnami/spark:latest

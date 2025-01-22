@@ -5,3 +5,10 @@ Repositório do Projeto Final da Disciiplina DCA0132 Engenharia de Dados, lecion
 Discentes:
 * Raimundo Marciano
 * Sidney Alves
+
+---
+
+```
+docker-compose up --build
+
+```
