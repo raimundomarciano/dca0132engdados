@@ -47,6 +47,7 @@ services:
       dockerfile: Dockerfile-spark
     environment:
       - SPARK_MODE=master
+      - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/jars/postgresql-42.7.5.jar
     ports:
       - "7077:7077"
       - "8080:8080"
@@ -107,9 +108,23 @@ services:
     networks:
       - app_network
 
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: default_db
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   mongo_data:
+  postgres_data:
 
 networks:
   app_network:

@@ -24,6 +24,9 @@ docker cp depends/scaler.pkl spark-master:/opt/bitnami/spark/work/
 docker cp depends/credito_teste.csv spark-master:/opt/bitnami/spark/work/
 docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 /opt/bitnami/spark/work/sparkekafka.py
 
+docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 --jars /opt/bitnami/spark/jars/mongo-spark-connector_2.12-10.1.1.jar /opt/bitnami/spark/work/sparkekafka.py
+
+
 
 docker exec -it kafka kafka-topics --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic test-topic
 docker exec -it kafka kafka-console-producer --broker-list kafka:9092 --topic test-topic
@@ -40,6 +43,8 @@ docker rm spark-master
 docker-compose up --build spark-master
 
 
+docker exec -it postgres psql -U user -d default_db
+SELECT * FROM loan_info;
 
 
 

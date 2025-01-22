@@ -9,12 +9,13 @@ RUN curl -o /opt/bitnami/spark/jars/mongo-spark-connector_2.12-10.1.1.jar \
 COPY sparkekafka.py /opt/bitnami/spark/work/
 COPY depends/scaler.pkl /opt/bitnami/spark/work/
 COPY depends/svm_credit.pkl /opt/bitnami/spark/work/
+COPY postgresql-42.7.5.jar /opt/bitnami/spark/jars/
 
 # Define o diretório de trabalho
-WORKDIR /opt/bitnami/spark/work
+#WORKDIR /opt/bitnami/spark/work
 
 # Instale o pymongo
-RUN apt-get update && apt-get install -y python3-pip && pip3 install pymongo && pip3 install pandas && pip3 install numpy && pip3 install scikit-learn
+RUN apt-get update && apt-get install -y python3-pip && pip3 install pymongo && pip3 install pandas && pip3 install numpy && pip3 install scikit-learn 
 
 # Retorne para o usuário padrão
 USER 1001

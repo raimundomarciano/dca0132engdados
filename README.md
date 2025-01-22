@@ -8,6 +8,16 @@ Discentes:
 
 ---
 
+Foi desenvolvida uma solução de processamento de dados usando:
+
+* Apache Spark (master e 1 worker)
+* Kafka e Debezium
+* MongoDB e PostgreSQL
+
+
+
+---
+
 ```
 docker-compose up --build
 
