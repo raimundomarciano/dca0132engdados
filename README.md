@@ -20,3 +20,5 @@ Foi desenvolvida uma solução de processamento de dados usando:
 docker-compose up --build
 
 ```
+
+O sistema foi desenvolvido em Windows 11.
