@@ -14,8 +14,6 @@ Foi desenvolvida uma solução de processamento de dados usando:
 * Kafka e Debezium
 * MongoDB e PostgreSQL
 
-
-
 ---
 
 ```

@@ -5,6 +5,14 @@
 ```
 docker exec -it mongodb mongosh
 rs.initiate()
+
+docker exec -it kafka kafka-topics --create --topic mongo.newdatabase.newcollection --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
+
+docker exec -it postgres psql -U user -d default_db
+CREATE TABLE loan_info (loan DOUBLE PRECISION, "default" VARCHAR(20) );
+
+$headers = @{"Content-Type"="application/json"}
+Invoke-WebRequest -Uri "http://localhost:8083/connectors" -Method Post -Headers $headers -Body (Get-Content -Raw -Path "debezium-mongodb-connector.json")
 ```
 
 
@@ -26,12 +34,15 @@ docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-
 
 docker exec -it spark-master spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 --jars /opt/bitnami/spark/jars/mongo-spark-connector_2.12-10.1.1.jar /opt/bitnami/spark/work/sparkekafka.py
 
+docker exec -it kafka kafka-topics --create --topic mongo.newdatabase.newcollection --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
+docker exec -it kafka kafka-topics --describe --topic mongo.newdatabase.newcollection --bootstrap-server kafka:9092
+docker restart kafka
 
 
 docker exec -it kafka kafka-topics --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic test-topic
 docker exec -it kafka kafka-console-producer --broker-list kafka:9092 --topic test-topic
 
-
+docker exec -it kafka kafka-topics --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic mongo.newdatabase.newcollection
 
 
 docker start mongodb

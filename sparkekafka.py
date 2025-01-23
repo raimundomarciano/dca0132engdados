@@ -2,6 +2,13 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 import pyspark.sql.functions as F
 
+from pyspark.sql.types import StructField, StructType, StringType, MapType, FloatType
+ 
+schema = StructType([
+    StructField("a", StringType(), True),
+    StructField("loan", FloatType(), True)
+])
+
 # Criar sessão Spark
 spark = SparkSession.builder \
     .appName("MongoDBDebeziumIntegration") \
@@ -19,16 +26,19 @@ df = spark.readStream \
 messages = df.selectExpr("CAST(value AS STRING)")
 
 # Supondo que as mensagens estejam no formato JSON, você pode fazer a conversão para DataFrame
-messages_json = messages.select(F.from_json(messages['value'], "loan DOUBLE").alias("data")).select("data.*")
+messages_json = messages.select(F.from_json(messages['value'], schema).alias("data")).select("data.*")
 
-# Adicionar coluna 'default' com base na variável 'loan'
 messages_json_with_default = messages_json.withColumn(
     "default", 
-    F.when(messages_json["loan"] > 100, "não vai pagar").otherwise("vai pagar")
+    F.when(messages_json.loan > 100, "não vai pagar").otherwise("vai pagar")
 )
 
 # Função para processar e gravar em PostgreSQL
 def process_batch(batch_df, batch_id):
+     # Certificar-se de que o DataFrame tem ambas as colunas
+    print("Batch DataFrame:")
+    batch_df.show()
+
     # Definindo as propriedades de conexão
     postgres_url = "jdbc:postgresql://postgres:5432/default_db"
     properties = {
@@ -38,7 +48,7 @@ def process_batch(batch_df, batch_id):
     }
 
     # Gravar no PostgreSQL
-    batch_df.write.jdbc(url=postgres_url, table="loan_info", mode="append", properties=properties)
+    batch_df.select("loan", "default").write.jdbc(url=postgres_url, table="loan_info", mode="append", properties=properties)
 
 # Escrever no PostgreSQL com foreachBatch
 query = messages_json_with_default.writeStream \
@@ -47,54 +57,3 @@ query = messages_json_with_default.writeStream \
     .start()
 
 query.awaitTermination()
-
-
-
-# from pyspark.sql import SparkSession
-# from pyspark.sql.functions import col
-
-# # Criar sessão Spark
-# spark = SparkSession.builder \
-#     .appName("MongoDBDebeziumIntegration") \
-#     .master("local[*]") \
-#     .getOrCreate()
-
-# # Ler mensagens do Kafka
-# df = spark.readStream \
-#     .format("kafka") \
-#     .option("kafka.bootstrap.servers", "kafka:9092") \
-#     .option("subscribe", "mongo.newdatabase.newcollection") \
-#     .load()
-
-# # Converter mensagens de binário para string
-# messages = df.selectExpr("CAST(value AS STRING)")
-
-# # Escrever no console
-# # query = messages.writeStream \
-# #     .outputMode("append") \
-# #     .format("console") \
-# #     .start()
-
-# # Supondo que as mensagens estejam no formato JSON, você pode fazer a conversão para DataFrame
-# # Aqui é necessário usar um método para desserializar as mensagens JSON, por exemplo:
-# import pyspark.sql.functions as F
-# messages_json = messages.select(F.from_json(messages['value'], "loan DOUBLE").alias("data")).select("data.*")
-
-# # Aplicar transformação para verificar se loan é maior que 100
-# messages_json_with_default = messages_json.withColumn(
-#     "default", 
-#     F.when(messages_json["loan"] > 100, "não vai pagar").otherwise("vai pagar")
-# )
-
-# # Função para processar cada micro-batch
-# def process_batch(batch_df, batch_id):
-#     # Aqui você pode usar o método .show() ou outras ações para processar os dados
-#     batch_df.show()
-
-# # Escrever no console com a função foreachBatch
-# query = messages_json_with_default.writeStream \
-#     .outputMode("append") \
-#     .foreachBatch(process_batch) \
-#     .start()
-
-# query.awaitTermination()
